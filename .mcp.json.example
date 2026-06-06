@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "elabftw": {
+      "command": "npx",
+      "args": ["-y", "@sura_ai/elabftw@latest"],
+      "env": {
+        "ELABFTW_BASE_URL": "https://elab.example.com",
+        "ELABFTW_KEY_1": "<api key minted while viewing team 1>",
+        "ELABFTW_KEY_1_LABEL": "Main Lab",
+        "ELABFTW_KEY_2": "<api key minted while viewing team 2>",
+        "ELABFTW_KEY_2_LABEL": "Teaching Group",
+        "ELABFTW_DEFAULT_TEAM": "1",
+        "ELABFTW_ALLOW_WRITES": "true",
+        "ELABFTW_ALLOW_DESTRUCTIVE": "false"
+      }
+    },
+    "papers": {
+      "command": "npx",
+      "args": ["-y", "@sura_ai/papers@latest"],
+      "env": {
+        "PAPERS_CONTACT_EMAIL": "you@example.com",
+        "OPENALEX_API_KEY": "<optional - enables OpenAlex enrichment>",
+        "SEMANTIC_SCHOLAR_API_KEY": "<optional - higher Semantic Scholar limits>",
+        "CORE_API_KEY": "<optional - enables CORE full-text search>"
+      }
+    },
+    "chemistry": {
+      "command": "npx",
+      "args": ["-y", "@sura_ai/chemistry@latest"],
+      "env": {}
+    }
+  }
+}

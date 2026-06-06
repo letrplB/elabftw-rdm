@@ -1,0 +1,11 @@
+# Local MCP server config with real API keys.
+# Copy .mcp.json.example -> .mcp.json and fill in your keys.
+.mcp.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store

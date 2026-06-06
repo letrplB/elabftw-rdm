@@ -1,0 +1,34 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "elabftw-rdm",
+  "owner": {
+    "name": "bastian beitzinger"
+  },
+  "metadata": {
+    "description": "Help a research team design a working elabFTW data schema with an AI partner — and give that AI the operating manual to work the schema correctly afterwards.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "elabftw-rdm",
+      "description": "elabftw-mcp (generic operating manual: entity model, MCP tools, what elabFTW does NOT do + the workarounds), elabftw-schema-init (interactive workshop that designs the lab's schema), labschema (the generated per-lab structural contract). Backed by FAIR, ALCOA+, DCC, ISA, PROV reference docs.",
+      "version": "0.1.0",
+      "source": "./",
+      "strict": false,
+      "author": {
+        "name": "bastian beitzinger"
+      },
+      "license": "MIT",
+      "keywords": [
+        "elabftw",
+        "eln",
+        "research-data-management",
+        "fair-data",
+        "data-integrity",
+        "lab-notebook",
+        "agent-native"
+      ],
+      "category": "productivity"
+    }
+  ]
+}
