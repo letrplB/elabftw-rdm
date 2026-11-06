@@ -65,7 +65,13 @@ How they compose: `elabftw-mcp` (always) + `labschema-<lab>` (the binding contra
 
 ## Install
 
-Add the marketplace and install the plugin:
+One step (Claude Code 2.1.275 or later):
+
+```
+/plugin install elabftw-rdm --marketplace letrplB/elabftw-rdm
+```
+
+On older versions, add the marketplace first:
 
 ```
 /plugin marketplace add letrplB/elabftw-rdm
@@ -73,6 +79,15 @@ Add the marketplace and install the plugin:
 ```
 
 (For local development, point the marketplace at a working copy instead: `/plugin marketplace add path/to/elabftw-rdm`.)
+
+### Updates
+
+New versions do **not** arrive by themselves: Claude Code auto-updates only Anthropic's own marketplaces by default.
+
+- **Turn on auto-update (recommended):** `/plugin` → *Marketplaces* → `elabftw-rdm` → *Enable auto-update*. Claude Code then updates in the background during a session.
+- **Update by hand:** `/plugin marketplace update elabftw-rdm`, then `/reload-plugins` (or start a new session). A bare `/plugin marketplace update` without the name refreshes the listing but leaves the installed plugin on its version.
+
+Your lab's own files are not affected by updates: the generated `labschema-<lab>` lives in your project's `.claude/skills/` and the design dossier in your working folder, never inside the plugin (installed plugins are copies under `~/.claude/plugins/cache/` and are replaced on update).
 
 Then, in a lab's elabFTW: run `/elabftw-schema-init` and work through the workshop. Its final phase offers to wire your `CLAUDE.md` (see below) so every agent session that touches the notebook loads `elabftw-mcp` + the generated `labschema-<lab>`.
 

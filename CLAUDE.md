@@ -27,7 +27,8 @@ No build, no code to run — the deliverable is the text the agent reads. There 
 
 ## Release
 
-- Bump `version` in `.claude-plugin/plugin.json` and in both places in `.claude-plugin/marketplace.json`, and the `version` frontmatter of any changed skill.
+- Bump `version` in `.claude-plugin/plugin.json` — the only version Claude Code reads for updates; users get a new copy only when it changes, so every release must bump it. Do not add `version` to the plugin entry in `marketplace.json` (a mismatch is silently resolved in favour of `plugin.json`). Bump `metadata.version` in `marketplace.json` alongside, and the `version` frontmatter of any changed skill.
+- Run `claude plugin validate .` before pushing. Its warning that `CLAUDE.md` at the root is not loaded as context is expected — this file is for contributors, not users.
 - Add a `CHANGELOG.md` entry (Added / Changed / Fixed).
-- Users install from the default branch (`/plugin marketplace add letrplB/elabftw-rdm`), so a release is what is merged to `main`.
+- Users install from the default branch, so a release is what is merged to `main` with a bumped version. Auto-update is off by default for this marketplace; the README tells users how to turn it on.
 - Commit style: Conventional Commits — `feat: …`, `fix: …`, `docs: …`.

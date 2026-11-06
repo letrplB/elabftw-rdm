@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — 2026-11-06
+
+### Changed
+- README: one-step install (`/plugin install elabftw-rdm --marketplace letrplB/elabftw-rdm`), how to turn on auto-update and update by hand, and why lab files survive updates.
+- `version` now lives only in `plugin.json`; removed from the marketplace plugin entry.
+
 ## 0.2.0 — 2026-11-06
 
 ### Added
