@@ -10,7 +10,10 @@
 - **P9 — versioned protocols** (and gap G16): protocol resource per version with a `supersedes` chain, experiment template per protocol family with `follows_protocol`, required `deviations` field.
 - `labschema` template: protocols section, everyday-recipes section (tool-level steps for the lab's common tasks).
 - Workshop: seed-plan sheet, sandbox-team-first recommendation, `06-seed-log.md` undo map, optional migration of existing entries (retag, backfill `schema_version`).
+- **Contract published into elabFTW**: Phase 6 stores the labschema as a locked `Lab data contract` resource (tag `contract:<lab>`, new resource per schema version), so people and other MCP clients can read it; `elabftw-mcp` looks it up when no local skill is loaded.
+- **Native lockdown**: template target permissions set and locked via MCP; a checklist for the team admin to turn off user tag creation and user template creation (no MCP tool exists for team settings).
 - README: prerequisites, quick start for a new lab.
+- `CLAUDE.md` for contributors to this repo (tool-name sync with the MCP server, stable pattern ids, sheet-template rules, release steps).
 
 ### Changed
 - `elabftw-mcp` aligned with `@sura_ai/elabftw` 0.7: templates vs. categories (6.x), create-from-template (`template=<id>`), write/destructive gates and toolsets (a missing tool is configuration, not capability), actual integrity tools (`elab_lock`, `elab_timestamp`, `elab_bloxberg`, `elab_delete_entity`), the `uploads` field type, markdown bodies stored as rich text, and the whole-blob hazards of `metadata` updates and `native.tags` round-trips.

@@ -8,7 +8,7 @@ version: "0.2"
 
 You are operating a real lab's notebook. Records here are legal/scientific evidence (see `references/data-integrity-alcoa.md`). Be precise, verify writes, never overwrite history.
 
-**Composition.** This skill is generic and lab-agnostic. If a `labschema-<lab>` skill exists for the instance you are in, **it is the binding contract** — its required fields, vocabularies, tag namespaces, protocol conventions and link conventions override anything generic here. Always load both. If none exists, the lab has not been initialised — recommend `/elabftw-schema-init` (on Opus 5.5 or newer).
+**Composition.** This skill is generic and lab-agnostic. If a `labschema-<lab>` skill exists for the instance you are in, **it is the binding contract** — its required fields, vocabularies, tag namespaces, protocol conventions and link conventions override anything generic here. Always load both. If no such skill is loaded, look for the contract **in the instance** before concluding there is none: `elab_list_tags` for a tag starting with `contract:`, then `elab_search` items with that tag (title `Lab data contract — …`); read the newest non-superseded one and treat it as the binding contract for this session. Only if neither exists has the lab not been initialised — recommend `/elabftw-schema-init` (on Opus 5.5 or newer).
 
 **Plugin paths.** `references/` sits at the plugin root, two levels above this skill's base directory.
 

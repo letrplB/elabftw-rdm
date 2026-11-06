@@ -82,6 +82,7 @@ Recommended base namespaces (a lab adapts the values):
 | `canonical:` | binds an analysis to *the* current result for a batch; flip to `canonical:superseded` on re-run | `canonical:LOT-2026-042` |
 | `batch:` | the material-batch axis | `batch:LOT-2026-042` |
 | `status:` | lifecycle beyond the single native status, when needed | `status:archived-raw` |
+| `contract:` | marks the lab's data-contract resource (one per schema version) | `contract:acme-cat` |
 | `protocol:` | protocol family, to list all runs of a procedure across its versions (P9) | `protocol:sop-dls` |
 
 Why tags not extra-fields for these axes: tags are queryable lab-wide (`tag:"project:screening"`), reversible without schema migration, and visible without following links. Rules: lowercase-hyphenated values; one value per namespace per entity unless the axis is genuinely multi-valued; **drop the freeform duplicate** when a structured tag covers the concept (`method:xrd` ⟹ remove bare `XRD`). Where work is run- or dataset-centric rather than material-centric, the `canonical:`/`batch:` axis can bind to a device, dataset, or campaign id instead of a material lot.
@@ -128,7 +129,7 @@ For records that must be defensible: `elab_lock` **and** `elab_timestamp` (RFC31
 
 ### P8 — One canonical schema, replicated per team (compensates G15)
 
-`labschema` is the single source of truth for the schema. Per-team elabFTW objects (items_types, categories, status, tags) are *projections* the agent creates and keeps in sync from `labschema`, with a `schema_version` to detect divergence (P5).
+`labschema` is the single source of truth for the schema, published twice: as the agent's skill and as a locked `Lab data contract` resource in the instance (tag `contract:<lab>`), so people and non-Claude-Code clients read the same contract. Where elabFTW can enforce part of it natively, use that too: team admins switch off user tag creation and user template creation, and templates lock the permissions of derived entries. Per-team elabFTW objects (items_types, categories, status, tags) are *projections* the agent creates and keeps in sync from `labschema`, with a `schema_version` to detect divergence (P5).
 
 ### P9 — Versioned protocols (compensates G16, G6, G11)
 

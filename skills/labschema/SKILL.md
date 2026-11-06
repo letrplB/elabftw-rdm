@@ -27,6 +27,8 @@ Authority: this overrides anything generic in elabftw-mcp. Patterns referenced (
 - Lab / group: {{lab_name}}
 - elabFTW team id(s): {{team_id}}  — pass `team` on every MCP call
 - schema_version: {{schema_version}}  — every entity created carries an extra-field `schema_version` = this string (P5)
+- Contract in elabFTW: resource {{contract_resource_id}} (tag `contract:{{lab_slug}}`) — the same contract, readable by people and by any MCP client. If this skill and that resource disagree, the newer `schema_version` wins; report the mismatch.
+- Native lockdown: {{which team settings the admin confirmed — e.g. users cannot create tags / experiment templates; template target permissions locked}}
 - Design dossier: {{dossier_path}} (e.g. `./elabftw-rdm-{{lab_slug}}/`)  — the workshop record: described workflow, decisions, rationale, history. Consult for context; the contract below is what you enforce.
 
 ## 2. Entity model
@@ -87,7 +89,7 @@ canonical binding: {{how canonical:<batch> + method:<m> bind an analysis; supers
 
 A fully-resolved labschema for a fictional catalysis lab — invented for illustration. Shows the template's shape on a common chemistry archetype (reusable recipes & methods, one-time synthesis runs, physical sample passports, canonical characterisation analyses). Substitute your lab's real types, fields, vocabulary, and team id on instantiation. The template shape is domain-general — a physics device passport, an engineering specimen-and-test, a biology cell-line-and-assay, or a computational dataset-and-run all instantiate the same structure; only the entities, activities, methods and vocabulary change.
 
-**1. Identity.** Lab: Acme Catalysis Group. Team id: `<team_id>`. `schema_version: "acme-cat/v1"`.
+**1. Identity.** Lab: Acme Catalysis Group. Team id: `<team_id>`. `schema_version: "acme-cat/v1"`. Contract in elabFTW: resource `<id>`, tag `contract:acme-cat`, locked + timestamped. Native lockdown confirmed by the team admin: users cannot create tags or experiment templates.
 
 **2. Entity model.**
 
