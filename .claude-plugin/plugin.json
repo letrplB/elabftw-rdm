@@ -1,7 +1,7 @@
 {
   "name": "elabftw-rdm",
-  "version": "0.1.0",
-  "description": "Research-data-management plugin for elabFTW. Three composable skills: elabftw-mcp (generic agent operating manual for the elabFTW data model + MCP tool surface + gap→workaround catalogue), elabftw-schema-init (interactive workshop that designs a lab's schema with the researchers), and labschema (the per-lab structural contract elabftw-schema-init generates). Grounded in FAIR, ALCOA+, the DCC lifecycle, ISA, and W3C PROV.",
+  "version": "0.2.0",
+  "description": "Research-data-management plugin for elabFTW. Three composable skills: elabftw-mcp (generic agent operating manual for the elabFTW data model + MCP tool surface + gap→workaround catalogue), elabftw-schema-init (interactive workshop that designs a lab's schema with the researchers, presenting decisions as visual HTML sheets), and labschema (the per-lab structural contract elabftw-schema-init generates). Grounded in FAIR, ALCOA+, the DCC lifecycle, ISA, and W3C PROV.",
   "author": {
     "name": "bastian beitzinger"
   },

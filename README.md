@@ -4,6 +4,34 @@ A research-data-management plugin for **elabFTW**, for labs in any domain — ch
 
 elabFTW enforces nothing: `required` is cosmetic, metadata is an unvalidated blob, links are untyped, tags are flat strings, schemas don't propagate, revisions cover only the body. An unstructured instance rots. This plugin makes the *agent* the schema, validation, provenance and aggregation layer, and makes the lab's structure an explicit, FAIR/ALCOA-grounded contract.
 
+## Before you start
+
+| You need | Why |
+|----------|-----|
+| **Claude Code** (CLI or desktop app) | the skills, `AskUserQuestion` and the decision sheets run there |
+| **Opus 5.5 or newer** for the workshop | Designing a lab schema means holding the whole workflow, the live instance, a pattern catalogue and FAIR/ALCOA in one coherent design across many turns. Smaller models (Sonnet-, Haiku-class) lose the thread and produce contracts that don't resolve — don't use them for `/elabftw-schema-init`. Opus is also recommended for day-to-day work under the finished contract. Switch with `/model` or the desktop model picker. |
+| **elabFTW 6.x** (5.6 mostly works) and an **API key** per team | 6.x separates resource templates from resource categories; the skills handle both |
+| **`@sura_ai/elabftw` ≥ 0.7** MCP server | the tool surface the skills are written against (see *MCP servers* below) |
+| A **browser** | the workshop shows its proposals as interactive HTML decision sheets |
+
+## Quick start for a new lab
+
+1. Install the plugin (below) and configure the `elabftw` MCP server — read-only is enough for the whole design phase.
+2. In a folder for your lab's ELN work (it will hold the design dossier), start Claude Code with Opus and run `/elabftw-schema-init --lab=<short-name>`.
+3. Answer the interview in your own words. Proposals come back as **decision sheets** that open in your browser: a diagram of the proposed structure, a "what a normal week looks like" storyboard, and a handful of decisions with the assistant's recommendation pre-marked. Answer there, press **Copy my answers**, paste into the chat. Small choices come as clickable questions in the chat.
+4. Plan on 2–4 sessions; the dossier (`./elabftw-rdm-<lab>/`) makes every session resumable.
+5. At the end you get the binding contract (`.claude/skills/labschema-<lab>/`), a human blueprint, and — only after your explicit approval, ideally on a test team first — the templates, categories and tags created in elabFTW.
+
+## How the workshop keeps it digestible
+
+Most researchers avoid ELN structuring because of the cognitive load. The workshop is built around that:
+
+- **Picture first** — every proposed structure arrives as a diagram in a self-contained HTML sheet (`assets/decision-sheet.html`; no network, works offline, printable), never as a wall of tables.
+- **Pre-answered decisions** — each decision carries a recommendation grounded in what the assistant learned about *your* lab, so "accept the recommendations" is always a fast path; disagreeing is treated as information.
+- **Clickable questions** — discrete choices use Claude Code's `AskUserQuestion`, with the context in the question and the recommendation first.
+- **Your words** — pattern codes, FAIR/PROV acronyms and elabFTW internals stay in the dossier; you see "batch page", "recipe version", "project tag".
+- **Nothing changes silently** — every write to elabFTW or to your files is shown first and needs a yes.
+
 ## The three skills
 
 | Skill | Role |
@@ -20,7 +48,8 @@ How they compose: `elabftw-mcp` (always) + `labschema-<lab>` (the binding contra
 
 - `fair-principles.md` — the 15 FAIR sub-principles → concrete elabFTW practice (Wilkinson 2016).
 - `data-integrity-alcoa.md` — ALCOA/ALCOA+ (MHRA 2018), the DCC lifecycle, W3C PROV.
-- `eln-modeling-patterns.md` — the elabFTW gap catalogue and the workaround patterns (P1–P8). The design core.
+- `eln-modeling-patterns.md` — the elabFTW gap catalogue, the resource-vs-experiment rule, and the workaround patterns (P1–P9: structured tags for projects/methods, artifact passports, typed links, controlled vocabularies, schema versioning, agent-side validation, lock+timestamp, per-team replication, versioned protocols). The design core.
+- `decision-sheets.md` — how proposals are presented: the sheet loop, its data shape, the writing rules, which sheet per phase.
 
 ## Install
 
@@ -75,6 +104,6 @@ To design or refine a lab's schema with the researchers, run **`/elabftw-schema-
 
 ## Status
 
-v0.1 — usable. The `elabftw-mcp` tool surface and the elabFTW data-model claims are grounded in the elabFTW source (`src/sql/structure.sql`, API v2 OpenAPI) and the live elabftw MCP; two low-confidence items (exact `value` shape of entity-link extra-fields, the precise `extrafield:` query grammar) should be confirmed against a live instance — see the dossier note in `eln-modeling-patterns.md`.
+v0.2 — usable. The tool surface matches `@sura_ai/elabftw` 0.7; the data-model claims are grounded in the elabFTW source (`src/sql/structure.sql`, API v2 OpenAPI) and the MCP server's tested behaviour. Entity-link extra fields take the target id as `value` (the server's `elab_set_extra_field` validates a positive integer id). One item to confirm per instance: the exact `extrafield:` grammar of the search DSL. See `CHANGELOG.md`.
 
 License: MIT.

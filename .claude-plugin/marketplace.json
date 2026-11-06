@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Help a research team design a working elabFTW data schema with an AI partner — and give that AI the operating manual to work the schema correctly afterwards.",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "plugins": [
     {
       "name": "elabftw-rdm",
       "description": "elabftw-mcp (generic operating manual: entity model, MCP tools, what elabFTW does NOT do + the workarounds), elabftw-schema-init (interactive workshop that designs the lab's schema), labschema (the generated per-lab structural contract). Backed by FAIR, ALCOA+, DCC, ISA, PROV reference docs.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source": "./",
       "strict": false,
       "author": {

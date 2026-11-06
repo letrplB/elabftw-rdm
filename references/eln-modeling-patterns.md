@@ -8,9 +8,9 @@ The design core. `elabftw-schema-init` leans on this to turn a lab's workflow in
 
 The agent has exactly these levers — nothing else:
 
-- **`items_types` + `experiments_templates`** as schema carriers (a body + a `metadata` JSON skeleton).
+- **`items_types` (resource templates) + `experiments_templates`** as schema carriers (a body + a `metadata` JSON skeleton + steps, tags, links, permissions), instantiated server-side on create.
 - **`metadata.extra_fields`** JSON on every entity — including the entity-link field types (`experiments`, `items`, `users`, `compounds`) that auto-create real link rows when set.
-- **categories** and **status** — one flat, single-level, colored label axis each, per entity kind, per team.
+- **categories** and **status** — one flat, single-level, colored label axis each, per entity kind, per team (elabFTW ≥ 6.0: resource categories are separate from resource templates).
 - **tags** — flat strings, team-scoped, no namespacing.
 - **untyped links** — bare `(id, id)` edges, no relation type/role/direction/metadata.
 - **compounds** — a fixed-schema substance registry (identifiers + GHS booleans; no lot/quantity/location).
@@ -36,8 +36,36 @@ The agent has exactly these levers — nothing else:
 | G13 | **Field identity = the JSON object key (the display name)** | Renaming an extra field silently orphans `extrafield:` searches, templates, integrations. → **never rename a field key** (*P6*) |
 | G14 | **One flat extra-field namespace per entity** | Groups are visual only; two fields can't share a name across groups. → globally unique field names per type |
 | G15 | **Everything is per-team; no org-wide schema** | items_types/templates/categories/status/tags duplicated per team, manually kept in sync. → *pattern P8* |
+| G16 | **No protocol versioning** | An edited procedure keeps only its body text in revisions; runs that followed the old version now point at a procedure that no longer says what they did. → *pattern P9* |
 
 ## 3. The workaround patterns
+
+### 3a — Resource or experiment? (the first modelling decision)
+
+Every thing the lab names in the interview becomes exactly one of: a **resource** (`items`, from a resource template), an **experiment** (`experiments`, from an experiment template), a **compound**, an **attachment**, a **field**, or a **tag**. Getting this wrong is the most expensive mistake — it cannot be fixed later without re-creating entries.
+
+- **Resource** if any holds: it persists beyond the activity that made it; more than one experiment will refer to it; it has an identity people ask about (lot number, serial, dataset DOI); it is the subject of "show me everything about X"; it is stored, located, used up.
+- **Experiment** if it is an activity with a date, an operator and an outcome — repeating it would be a *new* entry.
+- Two quick tests: *"Will another entry ever link **to** it?"* → resource. *"Did it **happen** on a day?"* → experiment.
+
+| Thing | Usually becomes | Why |
+|-------|-----------------|-----|
+| Recipe / route / fab recipe / pipeline | resource, versioned (P9) | reused by many runs |
+| SOP / measurement method | resource, versioned (P9) | cited by runs |
+| Synthesis / fabrication / culture / simulation run | experiment | dated activity |
+| Measurement / analysis | experiment, linked to what it measured | dated activity |
+| Sample / batch / device / specimen | resource — the passport (P2) | persists, measured many times |
+| Chemical substance | compound | registry with identifiers + hazards |
+| A specific bottle / lot of a reagent | resource ("Reagent lot") only if lot traceability matters | compounds carry no lot/qty/location |
+| Instrument | resource | linked per run for attribution |
+| Calibration / maintenance | experiment linked to the instrument | dated activity |
+| Raw data file | attachment on the experiment that produced it | stays with its origin (ALCOA-Original) |
+| Processed dataset / trained model | resource if reused or published; else attachment | needs its own identity only when cited |
+| A single result value | field on the analysis; cached on the passport (P2) | the analysis is the source of truth |
+| Project / campaign | `project:` tag; additionally a resource only if it needs its own page (aims, members, member links — P3 option 3) | tags list, pages describe |
+| Idea / meeting note | experiment (category `Note`) — or not in the ELN | no lineage value |
+
+Anti-patterns: one experiment per sample (the sample becomes unlinkable); one resource per measurement (floods the inventory); spending the single category axis on projects (it is needed for activity type — projects go to tags).
 
 ### P1 — Structured-tag pseudo-namespace (the project/material axis elabFTW lacks)
 
@@ -54,6 +82,7 @@ Recommended base namespaces (a lab adapts the values):
 | `canonical:` | binds an analysis to *the* current result for a batch; flip to `canonical:superseded` on re-run | `canonical:LOT-2026-042` |
 | `batch:` | the material-batch axis | `batch:LOT-2026-042` |
 | `status:` | lifecycle beyond the single native status, when needed | `status:archived-raw` |
+| `protocol:` | protocol family, to list all runs of a procedure across its versions (P9) | `protocol:sop-dls` |
 
 Why tags not extra-fields for these axes: tags are queryable lab-wide (`tag:"project:screening"`), reversible without schema migration, and visible without following links. Rules: lowercase-hyphenated values; one value per namespace per entity unless the axis is genuinely multi-valued; **drop the freeform duplicate** when a structured tag covers the concept (`method:xrd` ⟹ remove bare `XRD`). Where work is run- or dataset-centric rather than material-centric, the `canonical:`/`batch:` axis can bind to a device, dataset, or campaign id instead of a material lot.
 
@@ -95,11 +124,21 @@ Since elabFTW validates nothing: the per-lab `labschema` declares required field
 
 ### P7 — Integrity = lock **and** timestamp; snapshot metadata externally (compensates G11)
 
-For records that must be defensible: `action:lock` **and** `action:timestamp` (RFC3161) — lock alone is reversible, timestamp alone doesn't freeze the live row. Because revisions cover only the body (G11), any integrity-critical metadata must also be serialized into the body or an external snapshot at lock time, or it is not restorable. No-overwrite is the backbone (see `data-integrity-alcoa.md`).
+For records that must be defensible: `elab_lock` **and** `elab_timestamp` (RFC3161; both behind the MCP server's `ELABFTW_ALLOW_DESTRUCTIVE` gate) — lock alone is reversible, timestamp alone doesn't freeze the live row. Because revisions cover only the body (G11), any integrity-critical metadata must also be serialized into the body or an external snapshot at lock time, or it is not restorable. No-overwrite is the backbone (see `data-integrity-alcoa.md`).
 
 ### P8 — One canonical schema, replicated per team (compensates G15)
 
 `labschema` is the single source of truth for the schema. Per-team elabFTW objects (items_types, categories, status, tags) are *projections* the agent creates and keeps in sync from `labschema`, with a `schema_version` to detect divergence (P5).
+
+### P9 — Versioned protocols (compensates G16, G6, G11)
+
+A repeatable procedure has three possible homes in elabFTW; use the first two together and never the third:
+
+1. **Protocol resource** — the citable procedure itself, one resource per *version*. Fields: `protocol_family` (stable id, e.g. `SOP-DLS`), `version` (`v3`), `valid_from`, `owner` (`users`), `supersedes` (`items` link → previous version). Status: `draft → active → superseded`. A change is a **new resource** linked `supersedes` → old, and the old one's status flips to `superseded` — never an in-place edit of an active protocol (revisions keep body text only, so changed parameter fields would be lost, G11; and past runs would point at a procedure that no longer says what they followed).
+2. **Experiment template per protocol family** — pre-fills the run's steps, fields and `method:` tag, and carries a `follows_protocol` field (type `items`) defaulting to the active version. When a new version becomes active, update the template's default; existing runs keep their link to the version they followed — exactly right, since templates don't propagate (G6).
+3. ~~Copying the procedure text into every run's body~~ — unversioned, unlinkable, diverges silently.
+
+Each run links the exact version via `follows_protocol` (PROV `used`, the plan) and records **deviations** in a `deviations` field (required; "none" is a valid value) — deviations never go back into the protocol. Optional tag `protocol:<family>` lists all runs of a family across versions. When systematic parameter variation is the point (DoE, screening), the parameters are fields of the run, not new protocol versions.
 
 ## 4. ISA framing (structuring the model)
 
