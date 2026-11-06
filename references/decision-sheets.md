@@ -20,9 +20,13 @@ A sheet and `AskUserQuestion` combine well: open the sheet for the picture and t
 ## 2. The sheet loop
 
 1. **Write** `sheets/NN-<topic>.html` into the lab's dossier (`NN` = phase number, e.g. `02-entity-model.html`, `03-fields-sample.html`). Never into the plugin directory.
-2. **Open** it for the researcher: `open <path>` (macOS) / `xdg-open <path>` (Linux); if that is unavailable, give the absolute path. In the Claude desktop app, a file inside the session folder can also be shown in the file pane.
-3. **Say in one or two chat lines** what the sheet asks and how long it takes ("3 decisions, ~5 min; my recommendations are pre-marked — *Accept all recommendations* then *Copy my answers* is a valid answer").
-4. **Wait** for the pasted export. It looks like:
+2. **Open** it — two routes, pick the first that is available:
+   - **Built-in browser (Claude desktop app) — preferred.** Serve the `sheets/` folder over localhost and open the sheet in the app's browser pane. A `file://` page shows only as a static snapshot there; the agent cannot read it. So add (once, additively — never overwrite other entries) a configuration to the working folder's `.claude/launch.json`: name `rdm-sheets`, `runtimeExecutable` `python3`, `runtimeArgs` `["-m", "http.server", "<port>", "--directory", "<absolute dossier path>/sheets"]`, `port` `<port>`. Use a fixed port per lab (e.g. 8765): answers are stored per browser origin, so a changed port loses them. Start it with `preview_start`, then navigate to `http://localhost:<port>/NN-<topic>.html`.
+   - **Otherwise** (terminal `claude`, no browser pane): `open <path>` (macOS) / `xdg-open <path>` (Linux), or give the absolute path.
+3. **Say in one or two chat lines** what the sheet asks and how long it takes, and how to finish: in the app "write **fertig/done** when you're through"; elsewhere "press *Copy my answers* and paste the result". ("3 decisions, ~5 min; my recommendations are pre-marked — *Accept all recommendations* is a valid answer.")
+4. **Collect the answers.**
+   - **Browser pane:** when the researcher says they are done, read them yourself with the browser's JavaScript tool: `JSON.stringify(sheetAnswers())`. It returns `{lab, sheet, readAt, complete, decisions: [{id, header, question, pick: [{key, label, recommended}], note, open}]}`. Read only on the researcher's signal — never treat a half-filled sheet as their answer — and if `complete` is false, name the open decisions and ask whether to leave them open.
+   - **Copy-paste:** wait for the pasted export. It looks like:
    ```
    DECISION SHEET 02-entity-model — Acme Catalysis Group — answered 2026-11-06
    D1 Batch page: A "Yes — one passport per batch" (recommended)
@@ -33,13 +37,14 @@ A sheet and `AskUserQuestion` combine well: open the sheet for the picture and t
 5. **Act on it:** every answer goes to `decisions.md` (dated, with the option text). A pick marked *NOT the recommendation* or a note means you learned something — reflect it back in one line and update your model of the lab. `OPEN` items are carried to the next sheet or asked via `AskUserQuestion`; never silently defaulted.
 6. **Re-issue, don't edit in place:** when a sheet's content changes after feedback, write the next sheet (`02-entity-model-v2.html`) so the dossier keeps the history.
 
-Answers live in the researcher's browser (`localStorage`, keyed by lab + sheet id), so they can close the sheet and come back. Two people answering the same sheet produce two exports — collect both and surface disagreements as a decision of their own.
+Answers live in the browser (`localStorage`, keyed by lab + sheet id and the page's origin), so the researcher can close the sheet and come back. Two people answering the same sheet produce two exports — collect both and surface disagreements as a decision of their own.
 
 ## 3. Data shape
 
 ```jsonc
 {
   "lab": "Acme Catalysis Group",          // shown in the header; part of the storage key
+  "lang": "de",                            // "en" (default) or "de" — the sheet's own buttons and labels; write the content in the same language
   "sheet": "02-entity-model",             // stable id — part of the storage key and the export
   "title": "How your work maps into elabFTW",   // a plain-language claim or question, no jargon
   "date": "2026-11-06",

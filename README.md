@@ -18,7 +18,7 @@ elabFTW enforces nothing: `required` is cosmetic, metadata is an unvalidated blo
 
 1. Install the plugin (below) and configure the `elabftw` MCP server — read-only is enough for the whole design phase.
 2. In a folder for your lab's ELN work (it will hold the design dossier), start Claude Code with Opus and run `/elabftw-schema-init --lab=<short-name>`.
-3. Answer the interview in your own words. Proposals come back as **decision sheets** that open in your browser: a diagram of the proposed structure, a "what a normal week looks like" storyboard, and a handful of decisions with the assistant's recommendation pre-marked. Answer there, press **Copy my answers**, paste into the chat. Small choices come as clickable questions in the chat.
+3. Answer the interview in your own words. Proposals come back as **decision sheets**: a diagram of the proposed structure, a "what a normal week looks like" storyboard, and a handful of decisions with the assistant's recommendation pre-marked. In the Claude desktop app they open in the built-in browser and Claude reads your answers when you say "done"; elsewhere they open in your browser and you paste the result of **Copy my answers**. Small choices come as clickable questions in the chat.
 4. Plan on 2–4 sessions; the dossier (`./elabftw-rdm-<lab>/`) makes every session resumable.
 5. At the end you get the binding contract (`.claude/skills/labschema-<lab>/`), a human blueprint, and — only after your explicit approval, ideally on a test team first — the templates, categories and tags created in elabFTW, plus the contract itself as a locked resource there.
 
@@ -38,7 +38,7 @@ What is still not enforced: required fields and dropdown values for people worki
 
 Most researchers avoid ELN structuring because of the cognitive load. The workshop is built around that:
 
-- **Picture first** — every proposed structure arrives as a diagram in a self-contained HTML sheet (`assets/decision-sheet.html`; no network, works offline, printable), never as a wall of tables.
+- **Picture first** — every proposed structure arrives as a diagram in a self-contained HTML sheet (`assets/decision-sheet.html`; no network, works offline, printable, English or German), never as a wall of tables. In the Claude desktop app the sheet opens in the built-in browser and Claude reads your answers directly — you just say "done". Elsewhere, *Copy my answers* and paste.
 - **Pre-answered decisions** — each decision carries a recommendation grounded in what the assistant learned about *your* lab, so "accept the recommendations" is always a fast path; disagreeing is treated as information.
 - **Clickable questions** — discrete choices use Claude Code's `AskUserQuestion`, with the context in the question and the recommendation first.
 - **Your words** — pattern codes, FAIR/PROV acronyms and elabFTW internals stay in the dossier; you see "batch page", "recipe version", "project tag".

@@ -55,6 +55,7 @@
   .bar > span { display: block; height: 100%; background: var(--good); width: 0; transition: width .2s; }
   button { font: inherit; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 7px 12px; cursor: pointer; }
   button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .donehint { font-size: 14px; margin: 8px 0 0; }
   .summary .actions { display: flex; gap: 8px; flex-wrap: nowrap; }
   button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -125,11 +126,12 @@
 <script type="application/json" id="sheet-data">
 {
   "lab": "Acme Catalysis Group",
+  "lang": "en",
   "sheet": "02-entity-model",
   "title": "How your work maps into elabFTW",
   "date": "2026-11-06",
   "phase": { "current": 3, "names": ["Survey", "Your workflow", "What becomes what", "Fields", "Tags & links", "Checks", "Hand-over"] },
-  "intro": "Below is the structure I propose, built from what you told me. Look at the picture first, then make the **three decisions** — each has my recommendation pre-marked. When you are done, press **Copy my answers** and paste the result into the chat.",
+  "intro": "Below is the structure I propose, built from what you told me. Look at the picture first, then make the **three decisions** — each has my recommendation pre-marked. When you are done, write **done** in the chat — or, outside the Claude app, press **Copy my answers** and paste the result.",
   "learned": [
     "You make catalyst **batches** and split each into portions for XRD, BET and TEM.",
     "Your recipes change slowly (a few times per year) and you want to know which version a batch was made with.",
@@ -245,6 +247,22 @@
   catch (e) { document.getElementById("app").innerHTML = "<p>Sheet data is not valid JSON: " + esc(String(e)) + "</p>"; return; }
 
   var KEY = "elabftw-rdm:" + (data.lab || "") + ":" + (data.sheet || "");
+  // UI strings. Sheet content comes from the data; only the renderer's own labels live here.
+  var STR = {
+    en: { accept: "Accept all recommendations", copy: "Copy my answers", learned: "What I understood so far",
+          learnedHint: "My recommendations are based on this. If something is wrong, say so in the notes — that matters more than any single decision.",
+          answers: "Your answers", copied: "Copied to the clipboard. If that failed, select the text below and copy it. Paste it into the chat.",
+          multi: "Pick all that apply.", rec: "Recommended", more: "Background", notes: "Notes, doubts, or a different idea (optional)",
+          decided: "decided", of: "of", done: "Working in the Claude app? Just write “done” in the chat — Claude reads your answers from this page.",
+          legend: ["thing in elabFTW", "central page", "— link set by the assistant", "- - - pointer to the current result"] },
+    de: { accept: "Alle Empfehlungen übernehmen", copy: "Antworten kopieren", learned: "Was ich bisher verstanden habe",
+          learnedHint: "Darauf beruhen meine Empfehlungen. Wenn etwas nicht stimmt, schreibt es in die Anmerkungen – das ist wichtiger als jede einzelne Entscheidung.",
+          answers: "Eure Antworten", copied: "In die Zwischenablage kopiert. Falls das nicht geklappt hat, markiert den Text unten und kopiert ihn. Dann in den Chat einfügen.",
+          multi: "Mehrfachauswahl möglich.", rec: "Empfohlen", more: "Hintergrund", notes: "Anmerkungen, Zweifel oder eine andere Idee (optional)",
+          decided: "entschieden", of: "von", done: "In der Claude-App? Schreibt einfach „fertig“ in den Chat – Claude liest eure Antworten direkt aus dieser Seite.",
+          legend: ["Eintrag in eLabFTW", "zentrale Seite", "— Verknüpfung, die der Assistent setzt", "- - - Verweis auf das aktuelle Ergebnis"] }
+  };
+  var T = STR[data.lang] || STR.en;
   var state = load();
   var app = document.getElementById("app");
   document.title = (data.title || "Decision sheet") + " — " + (data.lab || "");
@@ -276,7 +294,7 @@
   if (decisions.length) {
     var sum = el("div", "summary");
     sum.innerHTML = '<span class="count" id="count"></span><div class="bar"><span id="bar"></span></div>';
-    var bRec = el("button", null, "Accept all recommendations");
+    var bRec = el("button", null, T.accept);
     bRec.type = "button";
     bRec.onclick = function () {
       decisions.forEach(function (d) {
@@ -285,17 +303,18 @@
       });
       save(); render();
     };
-    var bCopy = el("button", "primary", "Copy my answers");
+    var bCopy = el("button", "primary", T.copy);
     bCopy.type = "button";
     bCopy.onclick = exportAnswers;
     var act = el("div", "actions"); act.appendChild(bRec); act.appendChild(bCopy); sum.appendChild(act);
     app.appendChild(sum);
+    app.appendChild(el("p", "muted donehint", esc(T.done)));
   }
 
   if (data.learned && data.learned.length) {
     var p = el("section", "panel");
-    p.appendChild(el("h2", null, "What I understood so far"));
-    p.appendChild(el("p", "muted", "My recommendations are based on this. If something is wrong, say so in the notes — that matters more than any single decision."));
+    p.appendChild(el("h2", null, T.learned));
+    p.appendChild(el("p", "muted", T.learnedHint));
     var l = el("ul", "learned");
     data.learned.forEach(function (x) { l.appendChild(el("li", null, md(x))); });
     p.appendChild(l);
@@ -307,7 +326,7 @@
 
   var exp = el("section", "panel");
   exp.id = "export";
-  exp.innerHTML = '<h2>Your answers</h2><p class="muted">Copied to the clipboard. If that failed, select the text below and copy it. Paste it into the chat.</p><pre id="exporttext"></pre>';
+  exp.innerHTML = "<h2>" + esc(T.answers) + '</h2><p class="muted">' + esc(T.copied) + '</p><pre id="exporttext"></pre>';
   app.appendChild(exp);
 
   // ---------- sections ----------
@@ -330,7 +349,7 @@
       lg.style.padding = "0";
       fs.appendChild(lg);
       if (d.why) fs.appendChild(el("p", "why", md(d.why)));
-      if (d.multi) fs.appendChild(el("p", "muted", "Pick all that apply."));
+      if (d.multi) fs.appendChild(el("p", "muted", T.multi));
       var opts = el("div", "options");
       d.options.forEach(function (o) {
         var lab = el("label", "opt" + (picked.indexOf(o.key) >= 0 ? " checked" : ""));
@@ -344,16 +363,16 @@
         };
         lab.appendChild(inp);
         var body = el("div");
-        body.innerHTML = '<span class="lbl">' + md(o.label) + "</span>" + (o.recommended ? '<span class="rec">Recommended</span>' : "") +
+        body.innerHTML = '<span class="lbl">' + md(o.label) + "</span>" + (o.recommended ? '<span class="rec">' + esc(T.rec) + "</span>" : "") +
           (o.detail ? '<div class="detail">' + md(o.detail) + "</div>" : "") +
           (o.consequence ? '<div class="cons">' + md(o.consequence) + "</div>" : "");
         lab.appendChild(body);
         opts.appendChild(lab);
       });
       fs.appendChild(opts);
-      if (d.more) { var dt = el("details"); dt.innerHTML = "<summary>Background</summary><p>" + md(d.more) + "</p>"; fs.appendChild(dt); }
+      if (d.more) { var dt = el("details"); dt.innerHTML = "<summary>" + esc(T.more) + "</summary><p>" + md(d.more) + "</p>"; fs.appendChild(dt); }
       var ta = document.createElement("textarea");
-      ta.placeholder = "Notes, doubts, or a different idea (optional)";
+      ta.placeholder = T.notes;
       ta.value = st.note || "";
       ta.setAttribute("aria-label", "Notes for " + d.id);
       ta.oninput = function () { state[d.id] = state[d.id] || {}; state[d.id].note = ta.value; save(); };
@@ -403,7 +422,7 @@
       var d = el("div", "diagram");
       d.appendChild(diagram(g));
       box.appendChild(d);
-      box.appendChild(el("div", "legend", '<span><i></i>thing in elabFTW</span><span><i style="border-color:var(--accent);background:var(--accent-soft)"></i>central page</span><span>— link set by the assistant</span><span>- - - pointer to the current result</span>'));
+      box.appendChild(el("div", "legend", "<span><i></i>" + esc(T.legend[0]) + '</span><span><i style="border-color:var(--accent);background:var(--accent-soft)"></i>' + esc(T.legend[1]) + "</span><span>" + esc(T.legend[2]) + "</span><span>" + esc(T.legend[3]) + "</span>"));
       if (g.caption) box.appendChild(el("p", "caption", md(g.caption)));
       return box;
     }
@@ -483,9 +502,28 @@
   function updateSummary() {
     var c = document.getElementById("count"); if (!c) return;
     var n = decisions.filter(function (d) { return state[d.id] && state[d.id].pick && state[d.id].pick.length; }).length;
-    c.textContent = n + " of " + decisions.length + " decided";
+    c.textContent = n + " " + T.of + " " + decisions.length + " " + T.decided;
     document.getElementById("bar").style.width = (decisions.length ? (100 * n / decisions.length) : 0) + "%";
   }
+
+  // Machine-readable answers for an agent driving the browser: window.sheetAnswers()
+  function answers() {
+    var ds = decisions.map(function (d) {
+      var st = state[d.id] || {}; var pick = st.pick || [];
+      return {
+        id: d.id, header: d.header || "", question: d.title,
+        pick: pick.map(function (k) {
+          var o = d.options.filter(function (x) { return x.key === k; })[0] || {};
+          return { key: k, label: (o.label || "").replace(/\*\*/g, ""), recommended: !!o.recommended };
+        }),
+        note: (st.note || "").trim(),
+        open: pick.length === 0
+      };
+    });
+    return { lab: data.lab || "", sheet: data.sheet || "", readAt: new Date().toISOString(),
+             complete: ds.every(function (d) { return !d.open; }), decisions: ds };
+  }
+  window.sheetAnswers = answers;
 
   function exportAnswers() {
     var lines = ["DECISION SHEET " + (data.sheet || "") + " — " + (data.lab || "") + " — answered " + new Date().toISOString().slice(0, 10)];

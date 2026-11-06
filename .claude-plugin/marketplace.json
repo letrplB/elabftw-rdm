@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Help a research team design a working elabFTW data schema with an AI partner — and give that AI the operating manual to work the schema correctly afterwards.",
-    "version": "0.2.1"
+    "version": "0.2.2"
   },
   "plugins": [
     {

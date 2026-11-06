@@ -4,7 +4,7 @@ description: Interactive workshop that designs a research lab's elabFTW data sch
 version: "0.2"
 user-invocable: true
 argument-hint: "[--lab=<slug>] [--team=<id>] [--dossier=<path>] [--seed] — lab slug for the generated skill; team to scope to; dossier dir for the workshop record (default ./elabftw-rdm-<lab>/); --seed also creates the templates/categories/tags in elabFTW after approval."
-allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, ToolSearch, Bash(open:*), Bash(xdg-open:*), Bash(cp:*), Bash(mkdir:*), mcp__elabftw__*
+allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, ToolSearch, Bash(open:*), Bash(xdg-open:*), Bash(cp:*), Bash(mkdir:*), mcp__elabftw__*, mcp__Claude_Browser__*
 ---
 
 # /elabftw-schema-init — design the lab's data schema
@@ -25,7 +25,7 @@ At the start of every run, check which model you are. If you are not Opus 5.5 (o
 
 Most researchers avoid this work because of the cognitive load. Your job is to make every step cheap to digest. These rules bind every phase:
 
-1. **Picture before prose.** Any proposed structure (entity model, link conventions, tag map, seed plan) is shown as a **decision sheet** with a diagram — `assets/decision-sheet.html`, data-only, see `references/decision-sheets.md` for the loop, the data shape and the writing rules. Never describe a structure only in chat tables.
+1. **Picture before prose.** Any proposed structure (entity model, link conventions, tag map, seed plan) is shown as a **decision sheet** with a diagram — `assets/decision-sheet.html`, data-only, see `references/decision-sheets.md` for the loop, the data shape and the writing rules. Never describe a structure only in chat tables. Write sheets in the researchers' language (`lang`). In the Claude desktop app, open sheets in the built-in browser over localhost and read the answers yourself when the researcher says they are done; elsewhere use copy-paste.
 2. **`AskUserQuestion` for discrete choices.** Whenever the next step depends on a choice among 2–4 options, use the tool instead of writing the options as prose. Make each question carry its own context:
    - **Question text** says what is being decided *and* the fact you learned that makes it relevant: "You split every batch for XRD, BET and TEM — should each batch get its own overview page?" — not "Passport pattern?".
    - **Header** (≤ 12 chars) names the topic: `Batch page`, `Recipes`, `Projects`.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2 — 2026-11-06
+
+### Added
+- Decision sheets can be read back by the agent: `window.sheetAnswers()` returns the picks, notes and open decisions as JSON. In the Claude desktop app the workshop serves the dossier's `sheets/` folder over localhost (`.claude/launch.json` entry `rdm-sheets`), opens sheets in the built-in browser and reads the answers when the researcher says "done" — no copy-paste. Copy-paste stays as the fallback outside the app.
+- German sheet interface: `"lang": "de"` in the sheet data.
+
 ## 0.2.1 — 2026-11-06
 
 ### Changed
